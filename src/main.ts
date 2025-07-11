@@ -32,7 +32,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
   await app.listen(envsValues.PORT, () => {
-    logger.log(`Service is running on port ${envsValues.PORT}`);
+    logger.log(`Service is running on port ${envsValues.PORT} :D`);
   });
 }
 bootstrap();
