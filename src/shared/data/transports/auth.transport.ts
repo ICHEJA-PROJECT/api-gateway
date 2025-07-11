@@ -13,7 +13,7 @@ import { envsValues } from 'src/core/config/getEnvs';
           urls: envsValues.BROKER_HOSTS,
           queue: AUTH_SERVICE_OPTIONS.AUTH_QUEUE,
           queueOptions: {
-            durable: false,
+            durable: true,
           },
         },
       },
@@ -28,7 +28,7 @@ import { envsValues } from 'src/core/config/getEnvs';
           urls: envsValues.BROKER_HOSTS,
           queue: AUTH_SERVICE_OPTIONS.AUTH_QUEUE,
           queueOptions: {
-            durable: false,
+            durable: true,
           },
         },
       },

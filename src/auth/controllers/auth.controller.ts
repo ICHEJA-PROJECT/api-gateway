@@ -24,7 +24,8 @@ import { LoginStudentDto } from '../data/dtos/login-student-dto';
 import { createSuccessResponseDto } from 'src/shared/data/dtos/success-response.dto';
 import { ErrorResponseDto } from 'src/shared/data/dtos/error-response.dto';
 import { AUTH_SERVICE_OPTIONS } from '../domain/constants/auth_service_options';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { catchError } from 'rxjs';
 
 const RegisterStudentSuccess = createSuccessResponseDto(
   RegisterStudentResponseAdapter,
@@ -40,7 +41,7 @@ const StudentSuccess = createSuccessResponseDto(StudentResponseAdapter);
 export class AuthController {
   constructor(
     @Inject(AUTH_SERVICE_OPTIONS.AUTH_SERVICE_NAME)
-    private readonly authService: ClientProxy,
+    private readonly client: ClientProxy,
   ) {}
 
   @Post('register-student')
@@ -59,10 +60,17 @@ export class AuthController {
     description: 'Internal Server Error.',
     type: ErrorResponseDto,
   })
-  registerStudent(
-    @Body() createStudentDto: CreateStudentDto,
-  ): Promise<RegisterStudentResponseAdapter> {
-    return;
+  async registerStudent(@Body() createStudentDto: CreateStudentDto) {
+    return await this.client
+      .send(
+        { cmd: AUTH_SERVICE_OPTIONS.AUTH_REGISTER_STUDENT },
+        createStudentDto,
+      )
+      .pipe(
+        catchError((err) => {
+          throw new RpcException(err);
+        }),
+      );
   }
 
   @Post('login-student')
@@ -80,10 +88,14 @@ export class AuthController {
     description: 'Internal Server Error.',
     type: ErrorResponseDto,
   })
-  loginStudent(
-    @Body() loginStudentDto: LoginStudentDto,
-  ): Promise<LoginStudentResponseAdapter> {
-    return;
+  async loginStudent(@Body() loginStudentDto: LoginStudentDto) {
+    return await this.client
+      .send({ cmd: AUTH_SERVICE_OPTIONS.AUTH_LOGIN_STUDENT }, loginStudentDto)
+      .pipe(
+        catchError((err) => {
+          throw new RpcException(err);
+        }),
+      );
   }
 
   @Get('students')
@@ -116,9 +128,13 @@ export class AuthController {
     type: Number,
     required: false,
   })
-  getAllStudents(
-    @Query() query: GetAllStudentsQueryDto,
-  ): Promise<StudentResponseAdapter> {
-    return;
+  async getAllStudents(@Query() query: GetAllStudentsQueryDto) {
+    return await this.client
+      .send({ cmd: AUTH_SERVICE_OPTIONS.AUTH_GET_ALL_STUDENTS }, query)
+      .pipe(
+        catchError((err) => {
+          throw new RpcException(err);
+        }),
+      );
   }
 }
