@@ -35,4 +35,4 @@ import { envsValues } from 'src/core/config/getEnvs';
     ]),
   ],
 })
-export class NatsModule {}
+export class AuthTransport {}

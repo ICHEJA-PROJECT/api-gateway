@@ -28,7 +28,6 @@ async function bootstrap() {
     .setTitle('Client Gateway API')
     .setDescription('API documentation for AprendIA backend')
     .setVersion('1.0')
-    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
