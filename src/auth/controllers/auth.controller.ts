@@ -12,6 +12,7 @@ import { CreateStudentDto } from '../data/dtos/create-student.dto';
 import {
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiQuery,
   ApiResponse,
   ApiTags,
@@ -60,6 +61,11 @@ export class AuthController {
     description: 'Internal Server Error.',
     type: ErrorResponseDto,
   })
+  @ApiOperation({
+    summary: 'Register a new student in the system and generate a QR',
+    description:
+      'Registers a new student in the system and generates a QR code for them.',
+  })
   async registerStudent(@Body() createStudentDto: CreateStudentDto) {
     return await this.client
       .send(
@@ -87,6 +93,11 @@ export class AuthController {
     status: 500,
     description: 'Internal Server Error.',
     type: ErrorResponseDto,
+  })
+  @ApiOperation({
+    summary: 'Login a student using their token encoded in a QR code',
+    description:
+      'Logs in a student using their token encoded in a QR code and returns student information.',
   })
   async loginStudent(@Body() loginStudentDto: LoginStudentDto) {
     return await this.client
