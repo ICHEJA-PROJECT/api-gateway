@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Inject,
   Param,
+  ParseIntPipe,
   Post,
   Query,
 } from '@nestjs/common';
@@ -13,7 +14,6 @@ import { CreatePupilSkillDto } from '../data/dtos/create-pupil-skill.dto';
 import { RECORD_SERVICE_OPTIONS } from '../domain/constants/record_service_options';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { catchError } from 'rxjs';
-import { ApiQuery } from '@nestjs/swagger';
 
 @Controller('pupil-skills')
 export class PupilSkillController {
@@ -27,7 +27,9 @@ export class PupilSkillController {
   async create(@Body() createPupilSkillDto: CreatePupilSkillDto) {
     return await this.client
       .send(
-        { cmd: RECORD_SERVICE_OPTIONS.PUPIL_SKILL_CREATE },
+        {
+          cmd: RECORD_SERVICE_OPTIONS.PUPIL_SKILL_CREATE,
+        },
         createPupilSkillDto,
       )
       .pipe(
@@ -41,7 +43,10 @@ export class PupilSkillController {
   @HttpCode(HttpStatus.CREATED)
   async createMany(@Body() createMany: { pupilSkills: [CreatePupilSkillDto] }) {
     return await this.client
-      .send({ cmd: RECORD_SERVICE_OPTIONS.PUPIL_SKILL_CREATE_MANY }, createMany)
+      .send(
+        { cmd: RECORD_SERVICE_OPTIONS.PUPIL_SKILL_CREATE_MANY },
+        createMany.pupilSkills,
+      )
       .pipe(
         catchError((err) => {
           throw new RpcException(err);
@@ -63,9 +68,9 @@ export class PupilSkillController {
 
   @Get('pupil/:id')
   @HttpCode(HttpStatus.OK)
-  async getByPupil(@Param('id') id: number) {
+  async getByPupil(@Param('id', ParseIntPipe) id: number) {
     return await this.client
-      .send({ cmd: RECORD_SERVICE_OPTIONS.PUPIL_SKILL_FIND_BY_PUPIL }, id)
+      .send({ cmd: RECORD_SERVICE_OPTIONS.PUPIL_SKILL_FIND_BY_PUPIL_ID }, id)
       .pipe(
         catchError((err) => {
           throw new RpcException(err);
@@ -73,28 +78,22 @@ export class PupilSkillController {
       );
   }
 
-  @ApiQuery({
-    name: 'pupilId',
-    required: true,
-    type: String,
-  })
-  @ApiQuery({
-    name: 'skills',
-    required: true,
-    type: String,
-  })
-  @Get('grades/skills')
+  @Get('/grades/skills')
   @HttpCode(HttpStatus.OK)
   async getGradeBySkills(
-    @Query('pupilId') pupilId: string,
+    @Query('pupilId', ParseIntPipe) pupilId: number,
     @Query('skills') skills: string,
   ) {
+    let parsedSkills: number[];
+    parsedSkills = skills.split(',').map((skill) => parseInt(skill.trim()));
     return await this.client
       .send(
-        { cmd: RECORD_SERVICE_OPTIONS.PUPIL_SKILL_GET_GRADES_BY_SKILLS },
+        {
+          cmd: RECORD_SERVICE_OPTIONS.PUPIL_SKILL_FIND_GRADE_BY_SKILLS,
+        },
         {
           pupilId,
-          skills,
+          skills: parsedSkills,
         },
       )
       .pipe(

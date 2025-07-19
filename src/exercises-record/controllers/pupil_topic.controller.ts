@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Inject,
   Param,
+  ParseIntPipe,
   Post,
 } from '@nestjs/common';
 import { CreatePupilTopicDto } from '../data/dtos/create-pupil-topic.dto';
@@ -37,9 +38,9 @@ export class PupilTopicController {
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  async getByPupil(@Param('id') id: number) {
+  async getByPupil(@Param('id', ParseIntPipe) id: number) {
     return await this.client
-      .send({ cmd: RECORD_SERVICE_OPTIONS.PUPIL_TOPIC_FIND_BY_PUPIL }, id)
+      .send({ cmd: RECORD_SERVICE_OPTIONS.PUPIL_TOPIC_FIND_BY_PUPIL_ID }, id)
       .pipe(
         catchError((err) => {
           throw new RpcException(err);

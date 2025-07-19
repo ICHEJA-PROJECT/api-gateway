@@ -6,11 +6,12 @@ import {
   HttpStatus,
   Inject,
   Param,
+  ParseIntPipe,
   Post,
 } from '@nestjs/common';
 import { CreatePupilExerciseDto } from '../data/dtos/create-pupil-exercise.dto';
-import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { RECORD_SERVICE_OPTIONS } from '../domain/constants/record_service_options';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { catchError } from 'rxjs';
 
 @Controller('pupil-exercises')
@@ -37,10 +38,10 @@ export class PupilExerciseController {
 
   @Get('pupils/:id/ids')
   @HttpCode(HttpStatus.OK)
-  async findByPupilOnlyIds(@Param('id') id: number) {
+  async findByPupilOnlyIds(@Param('id', ParseIntPipe) id: number) {
     return await this.client
       .send(
-        { cmd: RECORD_SERVICE_OPTIONS.PUPIL_EXERCISE_FIND_BY_PUPIL_ONLY_IDS },
+        { cmd: RECORD_SERVICE_OPTIONS.PUPIL_EXERCISE_FIND_BY_PUPILS_IDS },
         id,
       )
       .pipe(
@@ -52,7 +53,7 @@ export class PupilExerciseController {
 
   @Get('pupils/:id')
   @HttpCode(HttpStatus.OK)
-  async findByPupil(@Param('id') id: number) {
+  async findByPupil(@Param('id', ParseIntPipe) id: number) {
     return await this.client
       .send({ cmd: RECORD_SERVICE_OPTIONS.PUPIL_EXERCISE_FIND_BY_PUPIL }, id)
       .pipe(
@@ -64,7 +65,7 @@ export class PupilExerciseController {
 
   @Get('exercises/:id')
   @HttpCode(HttpStatus.OK)
-  async findByExercise(@Param('id') id: number) {
+  async findByExercise(@Param('id', ParseIntPipe) id: number) {
     return await this.client
       .send({ cmd: RECORD_SERVICE_OPTIONS.PUPIL_EXERCISE_FIND_BY_EXERCISE }, id)
       .pipe(

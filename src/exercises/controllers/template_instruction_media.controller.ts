@@ -60,7 +60,9 @@ export class TemplateInstructionMediaController {
 
     return await this.client
       .send(
-        EXERCISE_SERVICE_OPTIONS.EXERCISE_TEMPLATE_INSTRUCTION_MEDIA_CREATE,
+        {
+          cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_TEMPLATE_INSTRUCTION_MEDIA_CREATE,
+        },
         createDto,
       )
       .pipe(
@@ -75,7 +77,9 @@ export class TemplateInstructionMediaController {
   async getAll() {
     return await this.client
       .send(
-        EXERCISE_SERVICE_OPTIONS.EXERCISE_TEMPLATE_INSTRUCTION_MEDIA_FIND_ALL,
+        {
+          cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_TEMPLATE_INSTRUCTION_MEDIA_FIND_ALL,
+        },
         {},
       )
       .pipe(

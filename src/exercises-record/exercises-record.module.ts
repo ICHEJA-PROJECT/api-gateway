@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
-import { PupilExerciseController } from './controllers/pupil_exercise.controller';
-import { PupilSkillController } from './controllers/pupil_skill.controller';
-import { PupilTopicController } from './controllers/pupil_topic.controller';
 import { ExercisesRecordTransport } from 'src/shared/data/transports/exercises-record.transport';
+import {
+  PupilExerciseController,
+  PupilSkillController,
+  PupilTopicController,
+} from './controllers';
 
 @Module({
   imports: [ExercisesRecordTransport],

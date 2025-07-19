@@ -26,7 +26,7 @@ export class TemplateController {
   async create(@Body() createTemplateDto: CreateTemplateDto) {
     return await this.client
       .send(
-        EXERCISE_SERVICE_OPTIONS.EXERCISE_TEMPLATE_CREATE,
+        { cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_TEMPLATE_CREATE },
         createTemplateDto,
       )
       .pipe(
@@ -40,7 +40,12 @@ export class TemplateController {
   @HttpCode(HttpStatus.OK)
   async getAll() {
     return await this.client
-      .send(EXERCISE_SERVICE_OPTIONS.EXERCISE_TEMPLATE_FIND_ALL, {})
+      .send(
+        {
+          cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_TEMPLATE_FIND_ALL,
+        },
+        {},
+      )
       .pipe(
         catchError((error) => {
           throw new RpcException(error);
@@ -55,7 +60,9 @@ export class TemplateController {
     parsedTopics = topics.split(',').map((topic) => parseInt(topic.trim()));
     return await this.client
       .send(
-        EXERCISE_SERVICE_OPTIONS.EXERCISE_TEMPLATE_FIND_BY_TOPICS_ID,
+        {
+          cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_TEMPLATE_FIND_BY_TOPICS_ID,
+        },
         parsedTopics,
       )
       .pipe(
@@ -69,7 +76,12 @@ export class TemplateController {
   @HttpCode(HttpStatus.OK)
   async getByTopic(@Param('id') id: number) {
     return await this.client
-      .send(EXERCISE_SERVICE_OPTIONS.EXERCISE_TEMPLATE_FIND_BY_TOPIC_ID, id)
+      .send(
+        {
+          cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_TEMPLATE_FIND_BY_TOPIC_ID,
+        },
+        id,
+      )
       .pipe(
         catchError((error) => {
           throw new RpcException(error);
@@ -81,7 +93,12 @@ export class TemplateController {
   @HttpCode(HttpStatus.OK)
   async getById(@Param('id') id: number) {
     return await this.client
-      .send(EXERCISE_SERVICE_OPTIONS.EXERCISE_TEMPLATE_FIND_BY_ID, id)
+      .send(
+        {
+          cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_TEMPLATE_FIND_BY_ID,
+        },
+        id,
+      )
       .pipe(
         catchError((error) => {
           throw new RpcException(error);

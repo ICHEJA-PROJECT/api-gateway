@@ -24,7 +24,7 @@ export class TemplateSkillController {
   async create(@Body() createTemplateSkillDto: CreateTemplateSkillDto) {
     return await this.client
       .send(
-        EXERCISE_SERVICE_OPTIONS.EXERCISE_TEMPLATE_SKILL_CREATE,
+        { cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_TEMPLATE_SKILL_CREATE },
         createTemplateSkillDto,
       )
       .pipe(
@@ -38,7 +38,10 @@ export class TemplateSkillController {
   @HttpCode(HttpStatus.OK)
   async getAll() {
     return await this.client
-      .send(EXERCISE_SERVICE_OPTIONS.EXERCISE_TEMPLATE_SKILL_FIND_ALL, {})
+      .send(
+        { cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_TEMPLATE_SKILL_FIND_ALL },
+        {},
+      )
       .pipe(
         catchError((error) => {
           throw new RpcException(error);
