@@ -35,7 +35,7 @@ export class PupilExerciseController {
       );
   }
 
-  @Get('pupil-only-ids/:id')
+  @Get('pupils/:id/ids')
   @HttpCode(HttpStatus.OK)
   async findByPupilOnlyIds(@Param('id') id: number) {
     return await this.client
@@ -50,7 +50,7 @@ export class PupilExerciseController {
       );
   }
 
-  @Get('pupil/:id')
+  @Get('pupils/:id')
   @HttpCode(HttpStatus.OK)
   async findByPupil(@Param('id') id: number) {
     return await this.client
@@ -62,7 +62,7 @@ export class PupilExerciseController {
       );
   }
 
-  @Get('exercise/:id')
+  @Get('exercises/:id')
   @HttpCode(HttpStatus.OK)
   async findByExercise(@Param('id') id: number) {
     return await this.client
