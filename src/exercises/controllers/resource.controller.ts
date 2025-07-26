@@ -8,11 +8,13 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
 } from '@nestjs/common';
 import { CreateResourceDto } from '../data/dtos/create-resource.dto';
 import { EXERCISE_SERVICE_OPTIONS } from '../domain/constants/exercise_service_options';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { catchError } from 'rxjs';
+import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('resources')
 export class ResourceController {
@@ -33,13 +35,20 @@ export class ResourceController {
       );
   }
 
-  @Get('pupils/:id')
+  @Get('pupils/:id/learning-path')
   @HttpCode(HttpStatus.OK)
-  async getByPupil(@Param('id', ParseIntPipe) id: number) {
+  @ApiOperation({
+      summary: "Obtain resources based on the student's topics.",
+      description:
+        "Obtain a list of resources for the student's topics.",
+  })
+  async getByPupil(@Param('id', ParseIntPipe) id: number, @Query('learningPathId') learningPathId: number) {
     return await this.client
       .send(
         { cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_RESOURCE_FIND_BY_PUPIL },
-        id,
+        {
+          id, learningPathId
+        },
       )
       .pipe(
         catchError((err) => {
@@ -48,13 +57,19 @@ export class ResourceController {
       );
   }
 
-  @Get('topic/:id')
+  @Get('topic/:id/learning-path')
   @HttpCode(HttpStatus.OK)
-  async getByTopic(@Param('id', ParseIntPipe) id: number) {
+  @ApiOperation({
+    summary: "Obtain the resources for a topic.",
+    description: "Obtain the resources for a topic based on the topic ID and the student's learning path ID."
+  })
+  async getByTopic(@Param('id', ParseIntPipe) id: number, @Query('learningPathId') learningPathId: number) {
     return await this.client
       .send(
         { cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_RESOURCE_FIND_BY_TOPIC },
-        id,
+        {
+          id, learningPathId
+        },
       )
       .pipe(
         catchError((err) => {
@@ -65,6 +80,11 @@ export class ResourceController {
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+        summary: "A resource is retrieved by ID.",
+        description:
+          "A resource is retrieved with the information to view it.",
+  })
   async getById(@Param('id', ParseIntPipe) id: number) {
     return await this.client
       .send({ cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_RESOURCE_FIND_BY_ID }, id)

@@ -14,6 +14,7 @@ import { CreateExerciseDto } from '../data/dtos/create-exercise.dto';
 import { EXERCISE_SERVICE_OPTIONS } from '../domain/constants/exercise_service_options';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { catchError } from 'rxjs';
+import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('exercises')
 export class ExerciseController {
@@ -67,11 +68,11 @@ export class ExerciseController {
       );
   }
 
-  @Get('pupil/:id')
+  @Get('pupil/:id/learning-path')
   @HttpCode(HttpStatus.OK)
-  async findByPupil(@Param('id', ParseIntPipe) id: number) {
+  async findByPupil(@Param('id', ParseIntPipe) id: number, @Query('learningPathId') learningPathId: number) {
     return await this.client
-      .send({ cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_FIND_BY_PUPIL_ID }, id)
+      .send({ cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_FIND_BY_PUPIL_ID }, { id, learningPathId })
       .pipe(
         catchError((err) => {
           throw new RpcException(err);
@@ -90,4 +91,21 @@ export class ExerciseController {
         }),
       );
   }
+
+  @Get('templates/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "An exercise is obtained by the reactive.",
+    description: "A random exercise is obtained by searching for the reactive ID."
+  })
+  async findRandomByTemplate(@Param('id') id: number) {
+    return await this.client
+      .send({ cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_RANDOM_FIND_BY_TEMPLATE}, id)
+      .pipe(
+        catchError((err) => {
+          throw new RpcException(err);
+        })
+      )
+  }
+
 }

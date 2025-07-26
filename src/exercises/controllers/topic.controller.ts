@@ -8,11 +8,13 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
 } from '@nestjs/common';
 import { CreateTopicDto } from '../data/dtos/create-topic.dto';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { EXERCISE_SERVICE_OPTIONS } from '../domain/constants/exercise_service_options';
 import { catchError } from 'rxjs';
+import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('topics')
 export class TopicController {
@@ -33,11 +35,16 @@ export class TopicController {
       );
   }
 
-  @Get('pupils/:id')
+  @Get('pupils/:id/learning-path')
   @HttpCode(HttpStatus.OK)
-  async getTopicsByPupil(@Param('id', ParseIntPipe) id: number) {
+  @ApiOperation({
+        summary: "Obtain the student's feasible topics.",
+        description:
+          "Obtain the list of topics the student is allowed to study.",
+  })
+  async getTopicsByPupil(@Param('id', ParseIntPipe) id: number, @Query('learningPathId') learningPathId: number) {
     return await this.client
-      .send({ cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_TOPIC_FIND_BY_PUPIL }, id)
+      .send({ cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_TOPIC_FIND_BY_PUPIL }, { id, learningPathId })
       .pipe(
         catchError((err) => {
           throw new RpcException(err);
@@ -60,11 +67,16 @@ export class TopicController {
       );
   }
 
-  @Get('/:id')
+  @Get('/:id/learning-path')
   @HttpCode(HttpStatus.OK)
-  async getTopic(@Param('id', ParseIntPipe) id: number) {
+  @ApiOperation({
+        summary: "A topic is retrieved by its ID and the student's learning path.",
+        description:
+          "A topic is retrieved, along with the list of questions.",
+  })
+  async getTopic(@Param('id', ParseIntPipe) id: number, @Query('learningPathId') learningPathId: number) {
     return await this.client
-      .send({ cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_TOPIC_FIND_BY_ID }, id)
+      .send({ cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_TOPIC_FIND_BY_ID }, { id, learningPathId})
       .pipe(
         catchError((err) => {
           throw new RpcException(err);
