@@ -70,6 +70,10 @@ export class ExerciseController {
 
   @Get('pupil/:id/learning-path')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "The student's proposed exercises will be obtained.",
+    description: "The student's proposed exercises are obtained based on the genetic algorithm."
+  })
   async findByPupil(@Param('id', ParseIntPipe) id: number, @Query('learningPathId') learningPathId: number) {
     return await this.client
       .send({ cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_FIND_BY_PUPIL_ID }, { id, learningPathId })
@@ -82,6 +86,10 @@ export class ExerciseController {
 
   @Get('/:id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "A specific exercise is obtained.",
+    description: "An exercise is obtained by its ID."
+  })
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return await this.client
       .send({ cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_FIND_BY_ID }, id)
