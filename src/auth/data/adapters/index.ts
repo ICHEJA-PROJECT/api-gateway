@@ -1,3 +1,2 @@
-export * from './login-student.adapter';
-export * from './register-student.adapter';
-export * from './token-payload.adapter';
+export * from './login-response.adapter';
+export * from './validate-token-response.adapter';

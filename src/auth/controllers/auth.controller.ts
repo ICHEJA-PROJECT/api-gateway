@@ -1,43 +1,26 @@
 import {
   Controller,
-  Post,
-  Body,
   HttpCode,
   HttpStatus,
-  Get,
-  Query,
+  Post,
+  Body,
   Inject,
 } from '@nestjs/common';
-import { CreateStudentDto } from '../data/dtos/create-student.dto';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import {
-  ApiCreatedResponse,
-  ApiOkResponse,
-  ApiOperation,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
-import { RegisterStudentResponseAdapter } from '../data/adapters/register-student.adapter';
-import { LoginStudentResponseAdapter } from '../data/adapters/login-student.adapter';
-import { GetAllStudentsQueryDto } from '../data/dtos/get-all-students.dto';
-import { StudentResponseAdapter } from '../data/adapters/student.adapter';
-import { LoginStudentDto } from '../data/dtos/login-student-dto';
-import { createSuccessResponseDto } from 'src/shared/data/dtos/success-response.dto';
-import { ErrorResponseDto } from 'src/shared/data/dtos/error-response.dto';
-import { AUTH_SERVICE_OPTIONS } from '../domain/constants/auth_service_options';
+  LoginCredentialsDto,
+  LoginQrDto,
+  ValidateTokenDto,
+} from '../data/dtos';
+import {
+  LoginResponseAdapter,
+  ValidateTokenResponseAdapter,
+} from '../data/adapters';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { AUTH_SERVICE_OPTIONS } from '../domain/constants/auth_service_options';
 import { catchError } from 'rxjs';
 
-const RegisterStudentSuccess = createSuccessResponseDto(
-  RegisterStudentResponseAdapter,
-);
-const LoginStudentSuccess = createSuccessResponseDto(
-  LoginStudentResponseAdapter,
-);
-
-const StudentSuccess = createSuccessResponseDto(StudentResponseAdapter);
-
-@ApiTags('Auth')
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -45,33 +28,28 @@ export class AuthController {
     private readonly client: ClientProxy,
   ) {}
 
-  @Post('register-student')
-  @HttpCode(HttpStatus.CREATED)
-  @ApiCreatedResponse({
-    description: 'The student has been successfully created.',
-    type: RegisterStudentSuccess,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Bad Request. Input data validation failed.',
-    type: ErrorResponseDto,
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal Server Error.',
-    type: ErrorResponseDto,
-  })
+  @Post('login/credentials')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Register a new student in the system and generate a QR',
-    description:
-      'Registers a new student in the system and generates a QR code for them.',
+    summary: 'Login with CURP and password',
+    description: 'Authenticate user using CURP and password credentials',
   })
-  async registerStudent(@Body() createStudentDto: CreateStudentDto) {
+  @ApiResponse({
+    status: 200,
+    description: 'Login successful',
+    type: LoginResponseAdapter,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid credentials',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User role not found',
+  })
+  async loginWithCredentials(@Body() loginDto: LoginCredentialsDto) {
     return await this.client
-      .send(
-        { cmd: AUTH_SERVICE_OPTIONS.AUTH_REGISTER_STUDENT },
-        createStudentDto,
-      )
+      .send({ cmd: AUTH_SERVICE_OPTIONS.AUTH_LOGIN_CREDENTIALS }, loginDto)
       .pipe(
         catchError((err) => {
           throw new RpcException(err);
@@ -79,29 +57,24 @@ export class AuthController {
       );
   }
 
-  @Post('login-student')
-  @ApiOkResponse({
-    description: 'Student logged in successfully.',
-    type: LoginStudentSuccess,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Bad Request. Invalid Token.',
-    type: ErrorResponseDto,
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal Server Error.',
-    type: ErrorResponseDto,
-  })
+  @Post('login/qr')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Login a student using their token encoded in a QR code',
-    description:
-      'Logs in a student using their token encoded in a QR code and returns student information.',
+    summary: 'Login with QR code',
+    description: 'Authenticate user using encrypted token from QR code',
   })
-  async loginStudent(@Body() loginStudentDto: LoginStudentDto) {
+  @ApiResponse({
+    status: 200,
+    description: 'Login successful',
+    type: LoginResponseAdapter,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid QR token or user not found',
+  })
+  async loginWithQR(@Body() loginDto: LoginQrDto) {
     return await this.client
-      .send({ cmd: AUTH_SERVICE_OPTIONS.AUTH_LOGIN_STUDENT }, loginStudentDto)
+      .send({ cmd: AUTH_SERVICE_OPTIONS.AUTH_LOGIN_STUDENT }, loginDto)
       .pipe(
         catchError((err) => {
           throw new RpcException(err);
@@ -109,39 +82,21 @@ export class AuthController {
       );
   }
 
-  @Get('students')
-  @ApiOkResponse({
-    description: 'Students fetched successfully.',
-    type: [StudentSuccess],
+  @Post('validate-token')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Validate JWT token',
+    description:
+      'Validate JWT token and extract payload information, check if expired',
   })
   @ApiResponse({
-    status: 500,
-    description: 'Internal Server Error.',
-    type: ErrorResponseDto,
+    status: 200,
+    description: 'Token validation result',
+    type: ValidateTokenResponseAdapter,
   })
-  @ApiResponse({
-    status: 204,
-    description: 'No content',
-    type: ErrorResponseDto,
-  })
-  @ApiQuery({
-    name: 'page',
-    type: Number,
-    required: false,
-  })
-  @ApiQuery({
-    name: 'limit',
-    type: Number,
-    required: false,
-  })
-  @ApiQuery({
-    name: 'educator_id',
-    type: Number,
-    required: false,
-  })
-  async getAllStudents(@Query() query: GetAllStudentsQueryDto) {
+  async validateToken(@Body() validateDto: ValidateTokenDto) {
     return await this.client
-      .send({ cmd: AUTH_SERVICE_OPTIONS.AUTH_GET_ALL_STUDENTS }, query)
+      .send({ cmd: AUTH_SERVICE_OPTIONS.AUTH_VALIDATE_TOKEN }, validateDto)
       .pipe(
         catchError((err) => {
           throw new RpcException(err);
