@@ -90,9 +90,9 @@ export class ExerciseController {
     summary: "A specific exercise is obtained.",
     description: "An exercise is obtained by its ID."
   })
-  async findOne(@Param('id', ParseIntPipe) id: number) {
+  async findOne(@Param('id', ParseIntPipe) id: number, @Query('studentId') pupilId: number) {
     return await this.client
-      .send({ cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_FIND_BY_ID }, id)
+      .send({ cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_FIND_BY_ID }, { id, pupilId })
       .pipe(
         catchError((err) => {
           throw new RpcException(err);
@@ -106,9 +106,9 @@ export class ExerciseController {
     summary: "An exercise is obtained by the reactive.",
     description: "A random exercise is obtained by searching for the reactive ID."
   })
-  async findRandomByTemplate(@Param('id') id: number) {
+  async findRandomByTemplate(@Param('id') id: number, @Query('studentId') studentId: number) {
     return await this.client
-      .send({ cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_RANDOM_FIND_BY_TEMPLATE}, id)
+      .send({ cmd: EXERCISE_SERVICE_OPTIONS.EXERCISE_RANDOM_FIND_BY_TEMPLATE}, { id, pupilId: studentId})
       .pipe(
         catchError((err) => {
           throw new RpcException(err);
